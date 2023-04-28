@@ -1,0 +1,77 @@
+- name: Configuration nagios server
+  hosts: server
+  tasks:
+    - name: Config user and group
+      shell: |
+        useradd nagios
+        groupadd nagcmd
+        usermod -a -G nagcmd nagios
+        usermod -a -G nagcmd www-data
+    
+    - name: Send nagios files on server
+      copy:
+        src: '{{ item }}'
+        dest: '{{ item }}'
+      loop:
+        - ~/nagios-4.4.6
+        - ~/nagios-plugins-2.2.1
+
+    - name: Config nagios-server
+      shell: |
+        cd ~/nagios-4.4.6
+        ./configure --with-nagios-group=nagios --with-command-group=nagcmd --with-httpd_conf=/etc/apache2/sites-enabled/
+        make all
+        make install
+        make install-init
+        make install-config
+        make install-commandmode
+        make install-webconf
+
+    - name: Config contacts.cfg
+    # Вставить код для изменения файла /usr/local/nagios/etc/objects/contacts.cfg или написать свой файл и отправить на сервер
+    #    define contact{
+    # contact_name nagiosadmin
+    # use generic-contact
+    # alias Nagios Admin
+    # email admin@1cloud.ru
+    # }
+    # Верхнее поменять под себя + добавить telegram/slack/vk
+
+    - name: Setup password for nagiosadmin
+    # Реализовать этот код ---> htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin(Требует ввод пароля в консоли) или сделать свой 
+    # htpasswd -p {{ password }} -c /usr/local/nagios/etc/htpasswd.users nagiosadmin <-- протестировать это (вместо {{ password }} - свой пароль)
+
+    - name: Включение cgi скриптов, restart apache2
+      shell: |
+        a2enmod cgi
+        service apache2 restart
+
+    - name: Настройка плагинов nagios
+      shell: | 
+        cd ~/nagios-plugins-2.2.1
+        ./configure --with-nagios-user=nagios --with-nagios-group=nagios
+        make
+        make install
+        /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg 
+      # ^ проверка на ошибки ^ 
+
+    - name: Реализовать сервис для nagios
+    # [Unit]
+    # Description=Nagios
+    # BindTo=network.target
+    # [Install]
+    # WantedBy=multi-user.target
+    # [Service]
+    # User=nagios
+    # Group=nagios
+    # Type=simple
+    # ExecStart=/usr/local/nagios/bin/nagios /usr/local/nagios/etc/nagios.cfg
+
+    # ДОПИСАТЬ КОНФИГИ МОНИТОРИНГА СЕРВИСОВ ДЛЯ ВСЕХ ХОСТОВ + настроить их
+
+    - name: настройка firewall (Уточнить)
+    #iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+    #iptables-save
+
+    - name: Запуск Nagios
+      shell: systemctl start nagios

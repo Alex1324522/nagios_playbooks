@@ -1,0 +1,33 @@
+- name: Configuration nagios-nrpe-server on ml
+  hosts: mls
+  tasks:
+    - name: install plugins and nagios-nrpe-server
+      apt: 
+        pkg:
+        - nagios-plugins
+        - nagios-nrpe-server
+        update_cache: no
+
+    - name: reload and check nrpe service
+      shell: |
+        service nagios-nrpe-server restart
+      # service nagios-nrpe-server status
+
+    - name: add ip nrpe server to nrpe.cfg
+      lineinfile: dest=/etc/nagios/nrpe.cfg
+                  regexp='#server_address=127.0.0.1'
+                  line="server_address={{ hostvars[ '{{ item }}' ].ansible_default_ipv4.address }}"
+      loop:
+      - "{{ groups[ 'mls' ] }}"
+
+    - name: add ip nagios server to nrpe.cfg
+      lineinfile: dest=/etc/nagios/nrpe.cfg
+                  regexp='#allowed_hosts=127.0.0.1,::1'
+                  line="allowed_hosts=127.0.0.1, {{ hostvars[ 'app' ].ansible_default_ipv4.address }}"
+
+    - name: Restar nrpe server
+      shell: service nagios-nrpe-server restart
+
+    # - name: send config file on mls
+    #   copy: 
+    ### ДОПИСАТЬ КОНФИГИ
