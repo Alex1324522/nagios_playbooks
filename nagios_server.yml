@@ -1,6 +1,25 @@
 - name: Configuration nagios server
   hosts: server
   tasks:
+
+    - name: Установка необходимых пакетов
+      apt:
+        pkg:
+        - openssh-server
+        - autoconf
+        - gcc 
+        - libc6 
+        - make 
+        - wget 
+        - unzip 
+        - apache2 
+        - php 
+        - libapache2-mod-php7.4 
+        - libgd-dev
+        - openssl 
+        - libssl-dev
+        update_cache: yes
+
     - name: Config user and group
       shell: |
         useradd nagios
