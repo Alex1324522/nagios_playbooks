@@ -51,12 +51,12 @@
       copy:
         src: ./server_contacts.cfg
         dest: /usr/local/nagios/etc/objects/contacts.cfg
-    # Вставить код для изменения файла /usr/local/nagios/etc/objects/contacts.cfg или написать свой файл и отправить на сервер
-    # Верхнее поменять под себя + добавить telegram/slack/vk
+        mode: '0775'
+        owner: nagios
+        group: nagios
 
+    # Установка пароля на сервере
     - name: Setup password for nagiosadmin
-    # Реализовать этот код ---> htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin(Требует ввод пароля в консоли) или сделать свой 
-    # htpasswd -p {{ password }} -c /usr/local/nagios/etc/htpasswd.users nagiosadmin <-- протестировать это (вместо {{ password }} - свой пароль)
       shell: htpasswd -p {{ password }} -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
 
     - name: Включение cgi скриптов, restart apache2
@@ -94,7 +94,7 @@
     - name: Создание директории для конфигов хостов
       file: 
         path: /usr/local/nagios/etc/mls # путь заменить на свой
-        mode: 0775
+        mode: '0775'
         owner: nagios
         group: nagios
         state: directory
@@ -103,7 +103,7 @@
       copy:
         src: ~/nagios_playbooks/mon_mls_services_for_serv.cfg
         dest: /usr/local/nagios/etc/mls/{{ item }}.cfg
-        mode: 0775
+        mode: '0775'
         owner: nagios
         group: nagios
       loop:

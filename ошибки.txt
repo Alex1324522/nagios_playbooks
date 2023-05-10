@@ -1,0 +1,1 @@
+# мой путь до nagios: usr/local/nagios
