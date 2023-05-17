@@ -1,0 +1,17 @@
+- name: TESTING
+  hosts: app
+  tasks:
+    - name: test hostname
+      command: hostname
+      register: command_output
+      delegate_to: ml
+
+    - name: print hostname
+      debug:
+        msg: "{{ command_output.stdout }}"
+    
+    - name: move hostname on server
+      lineinfile: 
+        dest: /home/alex/nagios_playbooks/test_hostname.txt 
+        line: "{{ command_output.stdout }}"
+  
