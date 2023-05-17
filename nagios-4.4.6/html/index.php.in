@@ -1,33 +1,4 @@
-<?php
-// Allow specifying main window URL for permalinks, etc.
-$url = 'main.php';
 
-if ("@COREWINDOW@" == "yes" && isset($_GET['corewindow'])) {
-
-	// The default window url may have been overridden with a permalink...
-	// Parse the URL and remove permalink option from base.
-	$a = parse_url($_GET['corewindow']);
-
-	// Build the base url.
-	$url = htmlentities($a['path']).'?';
-	$url = (isset($a['host'])) ? $a['scheme'].'://'.$a['host'].$url : '/'.$url;
-
-	$query = isset($a['query']) ? $a['query'] : '';
-	$pairs = explode('&', $query);
-	foreach ($pairs as $pair) {
-		$v = explode('=', $pair);
-		if (is_array($v)) {
-			$key = urlencode($v[0]);
-			$val = urlencode(isset($v[1]) ? $v[1] : '');
-			$url .= "&$key=$val";
-		}
-	}
-	if (preg_match("/^http:\/\/|^https:\/\/|^\//", $url) != 1)
-		$url = "main.php";
-}
-
-$this_year = '2020';
-?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 
 <html>
